@@ -1,0 +1,30 @@
+# Secretos y credenciales
+.env
+
+# Entornos virtuales
+.venv/
+
+# Salidas generadas por el pipeline (datos pesados, no versionar)
+outputs/
+outputs_smoke/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.whl
+
+# Datos ráster sueltos (por si se generan fuera de outputs/)
+*.tif
+*.tiff
+
+# macOS
+.DS_Store

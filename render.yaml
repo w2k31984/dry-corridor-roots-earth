@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: raices-del-corredor
+    runtime: python
+    plan: free
+    buildCommand: pip install .
+    startCommand: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
