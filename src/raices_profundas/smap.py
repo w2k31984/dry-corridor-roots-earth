@@ -77,7 +77,7 @@ def timestamp_from_name(path: Path):
 
 
 def get_smap_series(roi_path: Path, grid: gpd.GeoDataFrame, years, start_month, end_month, output: Path,
-                    granule_stride: int = 1):
+                    granule_stride: int = 1, process_local: bool = False):
     earthaccess.login()
     token = earthaccess.get_edl_token()
     client = Client(token=token) if token else Client()
@@ -88,39 +88,49 @@ def get_smap_series(roi_path: Path, grid: gpd.GeoDataFrame, years, start_month, 
 
     for year in years:
         for month in seasonal_months(start_month, end_month):
-            start, stop = month_window(year, month)
-            discovery = earthaccess.search_data(
-                short_name="SPL4SMGP", version="008",
-                bounding_box=bounds, temporal=(start.isoformat(), stop.isoformat()), count=500,
-            )
-            if not discovery:
-                print(f"Sin granules para {year}-{month:02d}; se omite.")
-                continue
-            request = Request(
-                collection=collection,
-                temporal={"start": start, "stop": stop},
-                shape=str(roi_path),
-                variables=[VARIABLE],
-                crs="EPSG:4326",
-                format="image/tiff",
-                max_results=300,
-                ignore_errors=True,
-            )
-            job_id = client.submit(request)
-            if isinstance(job_id, str):
-                client.wait_for_processing(job_id, show_progress=True)
             month_dir = output / "granules" / f"{year}-{month:02d}"
-            month_dir.mkdir(parents=True, exist_ok=True)
-            if granule_stride > 1:
-                # Descarga solo 1 de cada N granulos (~uniforme en el tiempo) para
-                # reducir volumen; el promedio mensual apenas cambia.
-                urls = list(client.result_urls(job_id))
-                urls.sort(key=lambda u: timestamp_from_name(Path(u)) or datetime.min)
-                selected = urls[::granule_stride]
-                futures = [client.download(url, directory=str(month_dir)) for url in selected]
+            if process_local and month_dir.is_dir() and any(month_dir.glob("*.tif")):
+                # Reanudación: el mes ya fue descargado; se procesa desde disco
+                # sin reenviar el job a Harmony.
+                files = sorted(month_dir.glob("*.tif"))
+                print(f"{year}-{month:02d}: {len(files)} archivos locales (sin job Harmony).")
             else:
-                futures = client.download_all(job_id, directory=str(month_dir), overwrite=False)
-            files = [Path(future.result()) for future in futures]
+                start, stop = month_window(year, month)
+                discovery = earthaccess.search_data(
+                    short_name="SPL4SMGP", version="008",
+                    bounding_box=bounds, temporal=(start.isoformat(), stop.isoformat()), count=500,
+                )
+                if not discovery:
+                    print(f"Sin granules para {year}-{month:02d}; se omite.")
+                    continue
+                request = Request(
+                    collection=collection,
+                    temporal={"start": start, "stop": stop},
+                    shape=str(roi_path),
+                    variables=[VARIABLE],
+                    crs="EPSG:4326",
+                    format="image/tiff",
+                    max_results=300,
+                    ignore_errors=True,
+                )
+                job_id = client.submit(request)
+                if isinstance(job_id, str):
+                    client.wait_for_processing(job_id, show_progress=True)
+                month_dir.mkdir(parents=True, exist_ok=True)
+                if granule_stride > 1:
+                    # Descarga solo 1 de cada N granulos (~uniforme en el tiempo) para
+                    # reducir volumen; el promedio mensual apenas cambia.
+                    try:
+                        urls = list(client.result_urls(job_id))
+                        urls.sort(key=lambda u: timestamp_from_name(Path(u)) or datetime.min)
+                        selected = urls[::granule_stride]
+                        futures = [client.download(url, directory=str(month_dir)) for url in selected]
+                    except Exception as exc:
+                        print(f"result_urls falló ({exc}); se descargan todos los granulos del mes.")
+                        futures = client.download_all(job_id, directory=str(month_dir), overwrite=False)
+                else:
+                    futures = client.download_all(job_id, directory=str(month_dir), overwrite=False)
+                files = [Path(future.result()) for future in futures]
             for tif in files:
                 timestamp = timestamp_from_name(tif)
                 if timestamp is None:
@@ -130,7 +140,7 @@ def get_smap_series(roi_path: Path, grid: gpd.GeoDataFrame, years, start_month, 
                     results.append({"cell_id": cell_id, "year": year, "month": month,
                                     "timestamp": timestamp.isoformat(), "rootzone_moisture": value})
             processed += len(files)
-            print(f"{year}-{month:02d}: {len(files)} archivos subset descargados.")
+            print(f"{year}-{month:02d}: {len(files)} archivos subset procesados.")
     if not results:
         raise RuntimeError("No se generaron observaciones. Revisa autenticación NASA, ROI, fechas y respuesta Harmony.")
     print(f"Total de archivos procesados: {processed}")

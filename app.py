@@ -11,13 +11,18 @@ st.set_page_config(page_title="Raíces Profundas", layout="wide")
 st.title("Raíces Profundas")
 st.caption("Humedad de la zona radicular y señales de sequía agrícola en el Corredor Seco")
 
-base = Path(__file__).resolve().parent / "outputs"
+# La app lee resultados precomputados: `data/` (versionada, usada en deploys)
+# o `outputs/` (generada localmente por el pipeline).
+root = Path(__file__).resolve().parent
+candidates = [root / "outputs", root / "data"]  # outputs/ = corrida local fresca; data/ = snapshot versionado
+base = next((d for d in candidates if (d / "smap_seasonal_timeseries.csv").exists()), candidates[0])
 series_path = base / "smap_seasonal_timeseries.csv"
 map_path = base / "smap_trends.geojson"
 projection_path = base / "smap_projection.csv"
 projection_map_path = base / "smap_projection.geojson"
 if not all(path.exists() for path in [series_path, map_path, projection_path, projection_map_path]):
-    st.info("Ejecuta `raices-profundas` (o `python root_project.py`) para generar el historial y la proyección en outputs/.")
+    st.info("No hay resultados en data/ ni outputs/. Ejecuta el pipeline "
+            "(`raices-profundas --download-fao-roi`) para generarlos.")
     st.stop()
 
 
