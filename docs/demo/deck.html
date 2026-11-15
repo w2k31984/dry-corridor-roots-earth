@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Raíces Profundas — NASA Space Apps 2026 demo</title>
+<style>
+@page { size: 1920px 1080px; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Helvetica Neue", Arial, sans-serif; color: #1d2733; }
+.slide { width: 1920px; height: 1080px; padding: 80px 100px 70px; position: relative; overflow: hidden; page-break-after: always; background: #fbfaf7; }
+.slide:last-child { page-break-after: auto; }
+h1 { font-size: 92px; margin: 0 0 10px; letter-spacing: -1px; }
+h2 { font-size: 60px; margin: 0 0 34px; color: #7a2e12; }
+p, li { font-size: 34px; line-height: 1.38; }
+ul { margin: 0; padding-left: 40px; } li { margin-bottom: 14px; }
+.kicker { font-size: 28px; text-transform: uppercase; letter-spacing: 4px; color: #b5541f; font-weight: 700; margin-bottom: 18px; }
+.foot { position: absolute; left: 100px; right: 100px; bottom: 30px; font-size: 20px; color: #7b8590; display: flex; justify-content: space-between; }
+.cols { display: flex; gap: 60px; align-items: flex-start; }
+.cols > div { flex: 1; }
+img.shot { width: 100%; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.18); border: 1px solid #ddd; background: #fff; }
+.title { background: linear-gradient(135deg, #3b1d0e 0%, #7a2e12 55%, #c86b2a 100%); color: #fff; }
+.title h1 { font-size: 120px; color: #fff; }
+.title .tag { font-size: 46px; color: #ffe2c4; margin-bottom: 70px; }
+.title p { font-size: 34px; margin: 8px 0; }
+.title .foot { color: #ffd9b8; }
+.q { display: flex; gap: 30px; margin-top: 40px; }
+.q div { flex: 1; background: #fff; border-left: 10px solid #c86b2a; border-radius: 10px; padding: 26px 30px; font-size: 32px; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.q b { display: block; font-size: 40px; color: #7a2e12; margin-bottom: 6px; }
+.big { font-size: 40px; }
+.pill { display: inline-block; background: #7a2e12; color: #fff; border-radius: 30px; padding: 6px 22px; font-size: 26px; margin: 0 10px 10px 0; }
+.small { font-size: 26px; color: #4a5560; }
+a { color: inherit; }
+</style></head><body>
+
+<section class="slide title">
+  <div class="kicker" style="color:#ffd9b8">NASA Space Apps Challenge 2026 · San Salvador, El Salvador</div>
+  <h1>Raíces Profundas</h1>
+  <div class="tag">Deep Roots — an Earth System Trend Detective for the Central American Dry Corridor</div>
+  <p><b>Team:</b> Ad Astra – Programming, Data Spatial &amp; Planet Investigation</p>
+  <p><b>Member:</b> Cristian Moises Parada Mendoza — Team Lead</p>
+  <p><b>Challenge:</b> Be An Earth System Trend Detective!</p>
+  <p style="margin-top:50px"><b>Live app:</b> raices-del-corredor.onrender.com &nbsp;·&nbsp; <b>Code:</b> github.com/w2k31984/dry-corridor-roots-earth</p>
+  <div class="foot"><span>1 / 7</span><span>Slides prepared with AI assistance (Devin, Cognition) and reviewed by the team</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Drought is changing the Dry Corridor — but which signals are real trends?</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li>The <b>Central American Dry Corridor</b> runs along the Pacific side of Guatemala, El Salvador, Honduras and Nicaragua.</li>
+        <li>Erratic rain, the mid-summer <b>canícula</b> and heat hit <b>millions of smallholder farmers</b>.</li>
+        <li>Dozens of NASA variables exist, but choosing one and testing if its change is <b>significant</b> needs coding and statistics skills.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="big"><b>Our goal:</b> let students, farmers' advisors and local decision-makers answer, in minutes and without code:</p>
+      <div class="q" style="flex-wrap:wrap">
+        <div><b>What?</b>is changing</div><div><b>Where?</b>is it changing</div>
+      </div>
+      <div class="q" style="margin-top:20px">
+        <div><b>How much?</b>per decade</div><div><b>Significant?</b>or just chance</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>2 / 7</span><span>Raíces Profundas · Ad Astra</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">User experience</div>
+  <h2>Three questions turn anyone into a data detective</h2>
+  <div class="cols">
+    <div style="flex:0.85">
+      <ul>
+        <li><b>1 · What?</b> Pick a topic (drought &amp; soil, rainfall, heat, air moisture) and one of <b>8 NASA variables</b>.</li>
+        <li><b>2 · Where?</b> Pick one of 25 ~1° cells named after the nearest town — or <b>click on the map</b>.</li>
+        <li><b>3 · When?</b> Whole year, <i>Primera</i>, <i>canícula</i>, <i>Postrera</i> or dry season, any period 1981–2025.</li>
+        <li><b>3 solved cases</b>, a glossary, CSV downloads and full <b>English / Spanish</b> interface.</li>
+      </ul>
+    </div>
+    <div><img class="shot" src="img/app_home.png"></div>
+  </div>
+  <div class="foot"><span>3 / 7</span><span>Screenshot: live app, English mode</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Detective's verdict</div>
+  <h2>Case: are the Guatemalan highlands warming?</h2>
+  <div style="width:1400px;margin:0 auto"><img class="shot" src="img/case2_series.png">
+  <img class="shot" src="img/case2_verdict.png" style="margin-top:20px"></div>
+  <div class="foot"><span>4 / 7</span><span>NASA MERRA-2 air temperature near Quetzaltenango · Sen slope, OLS line and 95% band from the live app</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Where is it changing?</div>
+  <h2>Same variable, opposite trends in different regions</h2>
+  <div style="width:1300px;margin:0 auto"><img class="shot" src="img/case3_map.png">
+  <img class="shot" src="img/case3_verdict.png" style="margin-top:20px"></div>
+  <div class="foot"><span>5 / 7</span><span>Postrera max temperature 2001–2025: highlands warm, eastern Honduras cools · black dots = p &lt; 0.05 · click a cell to investigate</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">NASA data &amp; science</div>
+  <h2>Built on NASA open data and standard trend statistics</h2>
+  <div class="cols">
+    <div>
+      <p class="big"><b>NASA data</b></p>
+      <ul>
+        <li><b>SMAP L4</b> root-zone soil moisture (SPL4SMGP v008, 2015–2025), subset with <b>NASA Harmony</b> &amp; earthaccess.</li>
+        <li><b>MERRA-2</b> via the <b>NASA POWER API</b>, monthly 1981–2025: rainfall, temperature, max temperature, soil wetness, humidity, evapotranspiration.</li>
+        <li>Links to Giovanni, AppEEARS and Data Rods for deeper study.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="big"><b>Statistics</b></p>
+      <ul>
+        <li><b>Sen's slope</b> with 95% confidence interval.</li>
+        <li><b>Mann–Kendall</b> test and <b>linear regression + t-test</b>, R², 95% CI.</li>
+        <li><b>Seasonal Mann–Kendall</b> on monthly anomalies (seasonal cycle removed).</li>
+        <li>Honest warnings: short series, pre-2001 reanalysis, exploratory 2030 projection.</li>
+      </ul>
+      <p style="margin-top:20px"><span class="pill">Python</span><span class="pill">Streamlit</span><span class="pill">Plotly</span><span class="pill">SciPy</span><span class="pill">GeoPandas</span></p>
+    </div>
+  </div>
+  <div class="foot"><span>6 / 7</span><span>Raíces Profundas · Ad Astra</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Impact &amp; next steps</div>
+  <h2>From detecting trends to protecting harvests</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><b>Students</b> learn what a significant trend is with real NASA data from their own towns.</li>
+        <li><b>Agricultural advisors</b> see which seasons and places are drying or heating up.</li>
+        <li><b>Local governments &amp; NGOs</b> get evidence to target drought-adaptation resources.</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li>Add GPM IMERG rainfall and MODIS vegetation (NDVI) and land-surface temperature.</li>
+        <li>Finer grid and municipality boundaries.</li>
+        <li>Assistant that suggests variables from a plain-language question.</li>
+        <li>Extend the detective to any region of the world.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="big" style="margin-top:120px; text-align:center; font-size:52px"><b>Try it:</b> raices-del-corredor.onrender.com</p>
+  <div class="foot"><span>7 / 7</span><span>Code: github.com/w2k31984/dry-corridor-roots-earth</span></div>
+</section>
+</body></html>
