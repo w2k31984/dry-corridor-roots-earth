@@ -2,7 +2,8 @@
 
 Team: **Ad Astra- Programming, Data Spatial & Planet Investigation**
 Challenge: **Be An Earth System Trend Detective!**
-Demo: https://raices-del-corredor.onrender.com/ · Code: https://github.com/w2k31984/dry-corridor-roots-earth
+Final project: https://raices-del-corredor.onrender.com/ · Code: https://github.com/w2k31984/dry-corridor-roots-earth
+Project demo (7-slide deck): https://github.com/w2k31984/dry-corridor-roots-earth/blob/master/docs/demo/RaicesProfundas_SpaceApps2026_demo.pdf
 
 ## High-level summary
 
