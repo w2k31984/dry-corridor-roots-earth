@@ -344,8 +344,10 @@ with tab_detective:
     if var != SMAP:
         with st.expander(L("Ver serie mensual sin ciclo estacional (Mann–Kendall estacional)",
                            "Show monthly series with the seasonal cycle removed (seasonal Mann–Kendall)")):
-            monthly = power[(power.cell_id == cell) & (power.variable == var) & power.year.between(*period)
-                            & power.month.isin(SEASONS[season]["months"])]
+            months = SEASONS[season]["months"]
+            monthly = power[(power.cell_id == cell) & (power.variable == var) & power.month.isin(months)]
+            season_year = monthly.year + ((months != sorted(months)) & (monthly.month >= months[0]))
+            monthly = monthly[season_year.between(*period)]
             anomalies = monthly_anomalies(monthly)
             smk = seasonal_mann_kendall(monthly)
             afit = trend_test(anomalies.decimal_year, anomalies.anomaly)
