@@ -52,6 +52,10 @@ def L(es: str, en: str) -> str:
     return en if LANG == "en" else es
 
 
+def localize(text: str) -> str:
+    return text.replace("mm/día", "mm/day").replace("vía ", "via ") if LANG == "en" else text
+
+
 def lang_key(name: str) -> str:
     """Per-language widget key so translated option labels re-render; state lives in `name`."""
     key = f"{name}_{LANG}"
@@ -236,8 +240,8 @@ with tab_detective:
         var = st.selectbox(L("Variable", "Variable"), options, key=lang_key("var"), on_change=sync_from("var"),
                            format_func=var_name)
         meta = VARIABLES[var]
-        st.caption(f"{meta['definition'][LANG]}  \n**{L('Fuente', 'Source')}:** {meta['source']} · "
-                   f"**{L('Unidades', 'Units')}:** {meta['units']}")
+        st.caption(f"{meta['definition'][LANG]}  \n**{L('Fuente', 'Source')}:** {localize(meta['source'])} · "
+                   f"**{L('Unidades', 'Units')}:** {localize(meta['units'])}")
     with q2:
         st.markdown(L("**2 · ¿Dónde?**", "**2 · Where?**"))
         cell = st.selectbox(L("Celda (~1°) — o haz clic en el mapa", "Cell (~1°) — or click on the map"),
@@ -273,7 +277,7 @@ with tab_detective:
     series = season_values(var, cell, season, period)
     result = trend_test(series.year, series.value)
     trends = all_cell_trends(var, season, period, data_version)
-    units, dec = meta["units"], meta["decimals"]
+    units, dec = localize(meta["units"]), meta["decimals"]
     period_label = f"{SEASONS[season][LANG]}, {period[0]}–{period[1]}"
 
     st.divider()
@@ -482,7 +486,7 @@ with tab_learn:
     st.subheader(L("Variables", "Variables"))
     st.dataframe(pd.DataFrame([{
         L("Variable", "Variable"): meta_["name"][LANG], L("Qué significa", "What it means"): meta_["definition"][LANG],
-        L("Unidades", "Units"): meta_["units"], L("Fuente", "Source"): meta_["source"],
+        L("Unidades", "Units"): localize(meta_["units"]), L("Fuente", "Source"): localize(meta_["source"]),
     } for meta_ in VARIABLES.values()]), hide_index=True, width="stretch")
 
     st.subheader(L("Glosario del detective", "Detective's glossary"))
