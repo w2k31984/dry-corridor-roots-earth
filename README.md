@@ -9,6 +9,7 @@ Mann–Kendall (también estacional), regresión lineal con prueba t e intervalo
 de confianza del 95%.
 
 Demo: https://raices-del-corredor.onrender.com/
+Video demo (30 s, YouTube): https://youtu.be/qrVntexuUyE
 
 ## Estructura del proyecto
 
@@ -212,6 +213,7 @@ Mann–Kendall (also seasonal), linear regression with a t-test and 95%
 confidence intervals.
 
 Demo: https://raices-del-corredor.onrender.com/
+Demo video (30 s, YouTube): https://youtu.be/qrVntexuUyE
 
 ## Project structure
 
