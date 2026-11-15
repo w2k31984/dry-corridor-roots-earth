@@ -1,0 +1,27 @@
+1
+00:00:00,200 --> 00:00:04,690
+Hi, I'm Cristian Parada, from team Ad Astra, in San Salvador.
+
+2
+00:00:04,900 --> 00:00:08,150
+Our challenge: Be an Earth System Trend Detective!
+
+3
+00:00:08,300 --> 00:00:13,080
+Meet Raíces Profundas, a trend detective for the Central American Dry Corridor.
+
+4
+00:00:13,300 --> 00:00:16,450
+Pick a NASA variable, a place and a season.
+
+5
+00:00:16,450 --> 00:00:22,050
+Using SMAP and MERRA-2 data, it shows what's changing, where, how much, and if it's significant.
+
+6
+00:00:22,500 --> 00:00:25,600
+The highlands are warming, while eastern Honduras cools.
+
+7
+00:00:26,100 --> 00:00:29,530
+Turning NASA data into drought action for farmers and students.
