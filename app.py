@@ -393,7 +393,7 @@ with tab_detective:
                                     marker={"size": 15, "color": "yellow"}, customdata=[[cell]],
                                     name=L("Seleccionada", "Selected"), hoverinfo="skip"))
     minx, miny, maxx, maxy = grid.total_bounds
-    map_fig.add_trace(go.Scattermap(lat=[c[1] for c in CITIES], lon=[c[2] for c in CITIES], mode="text",
+    map_fig.add_trace(go.Scattermap(lat=[c[1] for c in CITIES], lon=[c[2] for c in CITIES], mode="markers+text", marker={"size": 4, "color": "white"},
                                     text=[c[0] for c in CITIES], textfont={"size": 11, "color": "white"},
                                     textposition="top right", hoverinfo="skip", showlegend=False))
     map_fig.update_layout(map_style="satellite", map_center={"lat": (miny + maxy) / 2, "lon": (minx + maxx) / 2},
