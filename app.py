@@ -208,8 +208,9 @@ with tab_detective:
             "warm while eastern Honduras cools: **the same variable can trend in opposite directions** in different "
             "regions. Click other cells on the map to compare."),
     }
-    if st.session_state["demo"]:
-        st.info(demo_text[st.session_state["demo"]])
+    demo = st.session_state["demo"]
+    if demo and all(st.session_state.get(k) == v for k, v in DEMOS[demo].items()):
+        st.info(demo_text[demo])
 
     st.divider()
     q1, q2, q3 = st.columns(3)
