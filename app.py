@@ -69,7 +69,7 @@ if not all(path.exists() for path in required):
 
 
 @st.cache_data
-def load_data():
+def load_data(data_version: tuple):
     smap = pd.read_csv(base / "smap_seasonal_timeseries.csv").rename(columns={"rootzone_moisture": "value"})
     grid = gpd.read_file(base / "smap_trends.geojson")
     projections = pd.read_csv(base / "smap_projection.csv")
@@ -79,7 +79,8 @@ def load_data():
     return smap, grid, projections, projection_grid, power, cells
 
 
-smap, grid, projections, projection_grid, power, cells = load_data()
+data_version = tuple(path.stat().st_mtime for path in required)
+smap, grid, projections, projection_grid, power, cells = load_data(data_version)
 grid = grid[grid.cell_id.isin(cells.index)].reset_index(drop=True)
 
 
@@ -109,7 +110,7 @@ def season_values(var: str, cell_id: str, season: str, period) -> pd.DataFrame:
 
 
 @st.cache_data
-def all_cell_trends(var: str, season: str, period) -> pd.DataFrame:
+def all_cell_trends(var: str, season: str, period, data_version: tuple) -> pd.DataFrame:
     rows = []
     for cell_id in grid.cell_id:
         series = season_values(var, cell_id, season, period)
@@ -258,7 +259,7 @@ with tab_detective:
 
     series = season_values(var, cell, season, period)
     result = trend_test(series.year, series.value)
-    trends = all_cell_trends(var, season, period)
+    trends = all_cell_trends(var, season, period, data_version)
     units, dec = meta["units"], meta["decimals"]
     period_label = f"{SEASONS[season][LANG]}, {period[0]}–{period[1]}"
 
