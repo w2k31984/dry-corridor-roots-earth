@@ -1,8 +1,14 @@
 # Raíces Profundas — Corredor Seco
 
-Análisis de humedad de la zona radicular (SMAP L4, `sm_rootzone`) y señales de
-sequía agrícola en el Corredor Seco Centroamericano, usando datos de NASA
-Earthdata y Harmony, con un dashboard en Streamlit.
+Detective de tendencias del sistema Tierra para el Corredor Seco Centroamericano
+(NASA Space Apps 2026 — *Be an Earth System Trend Detective!*). La app permite
+elegir una variable (humedad del suelo SMAP L4, precipitación, temperatura,
+humedad, evapotranspiración de MERRA-2), una región y una temporada, y responde
+**qué cambia, dónde, cuánto y si es significativo** con pendiente de Sen,
+Mann–Kendall (también estacional), regresión lineal con prueba t e intervalos
+de confianza del 95%.
+
+Demo: https://raices-del-corredor.onrender.com/
 
 ## Estructura del proyecto
 
@@ -13,11 +19,16 @@ Earthdata y Harmony, con un dashboard en Streamlit.
 ├── root_project.py         # Shim de compatibilidad → raices_profundas.cli
 ├── test.py                 # Prueba de autenticación con Earthdata Login
 ├── scripts/smoke_test.py   # Corrida corta de validación (1 año, 2 meses)
+├── scripts/fetch_power.py  # Descarga variables MERRA-2 mensuales (NASA POWER) por celda
+├── data/                   # Datos versionados que usa la app desplegada
 ├── src/raices_profundas/   # Paquete principal
 │   ├── config.py           # Constantes (capa FAO, variable SMAP)
 │   ├── geo.py              # ROI, grilla de análisis, descarga FAO
 │   ├── smap.py             # earthaccess + Harmony, reducción de GeoTIFFs
-│   ├── stats.py            # Tendencias, proyección y clasificación
+│   ├── stats.py            # Sen, Mann–Kendall (+ estacional), OLS/t, anomalías, proyección
+│   ├── power.py            # Cliente de la API mensual de NASA POWER
+│   ├── variables.py        # Catálogo de variables y temporadas (ES/EN)
+│   ├── places.py           # Localidad más cercana y tipo de paisaje por celda
 │   ├── pipeline.py         # Orquestación del pipeline
 │   └── cli.py              # Argumentos de línea de comandos
 ├── tests/                  # Tests unitarios (pytest, sin red)
@@ -117,12 +128,25 @@ El pipeline:
 streamlit run app.py
 ```
 
-La app lee los archivos de `outputs/` y muestra:
+La app lee los archivos SMAP de `outputs/` (o `data/`) y `data/power_monthly.csv`
+y `data/cells.csv`, y tiene tres pestañas:
 
-- Serie histórica SMAP por celda con la proyección y su banda de incertidumbre.
-- Mapas de tendencias (pendiente Sen, p de Mann–Kendall, clasificación).
-- Mapa de cambio proyectado por año.
-- Tabla resumen por celda.
+- **Detective de tendencias:** 3 casos resueltos, selector de tema → variable,
+  región (localidad, coordenadas y paisaje; también clic en el mapa), temporada
+  (año, Primera, canícula, Postrera, estación seca) y periodo. Muestra el
+  *veredicto del detective*, pendiente de Sen/década con IC 95%, Mann–Kendall
+  (τ, p), prueba t, R², serie mensual sin ciclo estacional (Mann–Kendall
+  estacional), mapa de tendencias con celdas significativas, comparación entre
+  regiones y descarga CSV.
+- **Proyección SMAP (exploratoria):** extrapolación a 2030 con banda del 95%.
+- **Glosario, datos y métodos:** definiciones, fuentes, limitaciones y enlaces a
+  Giovanni, AppEEARS, Data Rods, NASA POWER y KNMI Climate Explorer.
+
+Para actualizar las variables MERRA-2 (no requiere credenciales):
+
+```bash
+python scripts/fetch_power.py --start 1981 --end 2025 --out data
+```
 
 Si `outputs/` no existe, la app muestra un aviso para ejecutar el pipeline.
 
@@ -138,6 +162,10 @@ Si `outputs/` no existe, la app muestra un aviso para ejecutar el pipeline.
 | `smap_trends.csv` / `.geojson` | Tendencias y clasificación por celda |
 | `smap_projection.csv` / `.geojson` | Proyecciones por celda y año |
 
+`scripts/fetch_power.py` genera además `data/power_monthly.csv` (cell_id, year,
+month, variable, value) y `data/cells.csv` (punto representativo, elevación,
+localidad y país de cada celda).
+
 ## Notas y limitaciones
 
 - La proyección es una extrapolación lineal de la pendiente de Sen de la serie
@@ -148,6 +176,9 @@ Si `outputs/` no existe, la app muestra un aviso para ejecutar el pipeline.
 - `render.yaml` permite desplegar el dashboard en Render, pero la app depende de
   los archivos de `outputs/`; en un despliegue limpio habrá que generar o subir
   esos datos previamente.
+- Las variables MERRA-2 vienen de NASA POWER en un punto representativo por
+  celda (resolución nativa 0.5° × 0.625°). Antes de ~2001 las reanálisis
+  asimilaban menos datos satelitales; la app sugiere 2001–2025 por defecto.
 - Licencia de datos SMAP: ver los términos de NASA Earthdata. La delimitación
   FAO del Corredor Seco es pública (ArcGIS REST, WFL1).
 
@@ -172,9 +203,15 @@ pero `overwrite=False` evita volver a descargar los GeoTIFFs existentes.
 
 # Deep Roots — Dry Corridor
 
-Analysis of root-zone soil moisture (SMAP L4, `sm_rootzone`) and agricultural
-drought signals in the Central American Dry Corridor, using NASA Earthdata and
-Harmony data, with a Streamlit dashboard.
+Earth system trend detective for the Central American Dry Corridor (NASA Space
+Apps 2026 — *Be an Earth System Trend Detective!*). Pick a variable (SMAP L4
+root-zone soil moisture, MERRA-2 precipitation, temperature, humidity,
+evapotranspiration), a region and a season, and the app answers **what is
+changing, where, how much and whether it is significant** using Sen's slope,
+Mann–Kendall (also seasonal), linear regression with a t-test and 95%
+confidence intervals.
+
+Demo: https://raices-del-corredor.onrender.com/
 
 ## Project structure
 
@@ -185,11 +222,16 @@ Harmony data, with a Streamlit dashboard.
 ├── root_project.py         # Compatibility shim → raices_profundas.cli
 ├── test.py                 # Earthdata Login authentication check
 ├── scripts/smoke_test.py   # Short validation run (1 year, 2 months)
+├── scripts/fetch_power.py  # Downloads monthly MERRA-2 variables (NASA POWER) per cell
+├── data/                   # Versioned data used by the deployed app
 ├── src/raices_profundas/   # Main package
 │   ├── config.py           # Constants (FAO layer, SMAP variable)
 │   ├── geo.py              # ROI, analysis grid, FAO download
 │   ├── smap.py             # earthaccess + Harmony, GeoTIFF reduction
-│   ├── stats.py            # Trends, projection and classification
+│   ├── stats.py            # Sen, Mann–Kendall (+ seasonal), OLS/t, anomalies, projection
+│   ├── power.py            # NASA POWER monthly API client
+│   ├── variables.py        # Variable and season catalogue (ES/EN)
+│   ├── places.py           # Nearest town and landscape type per cell
 │   ├── pipeline.py         # Pipeline orchestration
 │   └── cli.py              # Command-line arguments
 ├── tests/                  # Unit tests (pytest, no network)
@@ -289,12 +331,24 @@ The pipeline:
 streamlit run app.py
 ```
 
-The app reads the files in `outputs/` and shows:
+The app reads the SMAP files in `outputs/` (or `data/`) plus
+`data/power_monthly.csv` and `data/cells.csv`, and has three tabs:
 
-- Per-cell SMAP historical series with the projection and its uncertainty band.
-- Trend maps (Sen slope, Mann–Kendall p, classification).
-- Projected-change map by year.
-- Per-cell summary table.
+- **Trend detective:** 3 solved cases, topic → variable selector, region (town,
+  coordinates and landscape; also click on the map), season (year, Primera,
+  canícula, Postrera, dry season) and period. Shows the *detective's verdict*,
+  Sen slope/decade with 95% CI, Mann–Kendall (τ, p), t-test, R², the monthly
+  series without the seasonal cycle (seasonal Mann–Kendall), a trend map with
+  significant cells, region comparison and CSV download.
+- **SMAP projection (exploratory):** extrapolation to 2030 with a 95% band.
+- **Glossary, data & methods:** definitions, sources, limitations and links to
+  Giovanni, AppEEARS, Data Rods, NASA POWER and KNMI Climate Explorer.
+
+To refresh the MERRA-2 variables (no credentials needed):
+
+```bash
+python scripts/fetch_power.py --start 1981 --end 2025 --out data
+```
 
 If `outputs/` does not exist, the app shows a notice to run the pipeline.
 
@@ -310,6 +364,10 @@ If `outputs/` does not exist, the app shows a notice to run the pipeline.
 | `smap_trends.csv` / `.geojson` | Trends and classification per cell |
 | `smap_projection.csv` / `.geojson` | Projections per cell and year |
 
+`scripts/fetch_power.py` also writes `data/power_monthly.csv` (cell_id, year,
+month, variable, value) and `data/cells.csv` (representative point, elevation,
+town and country of each cell).
+
 ## Notes and limitations
 
 - The projection is a linear extrapolation of the Sen slope of the seasonal
@@ -320,6 +378,9 @@ If `outputs/` does not exist, the app shows a notice to run the pipeline.
 - `render.yaml` deploys the dashboard to Render, but the app depends on the
   files in `outputs/`; on a clean deployment those data must be generated or
   uploaded beforehand.
+- MERRA-2 variables come from NASA POWER at one representative point per cell
+  (native resolution 0.5° × 0.625°). Before ~2001 reanalyses assimilated fewer
+  satellite data; the app defaults to 2001–2025.
 - SMAP data license: see the NASA Earthdata terms. The FAO Dry Corridor
   boundary is public (ArcGIS REST, WFL1).
 

@@ -52,3 +52,60 @@ def test_project_moisture_bounds_and_columns():
     assert forecasts["forecast_rootzone_moisture"].between(0.0, 0.9).all()
     assert (forecasts["lower_95"] <= forecasts["upper_95"]).all()
     assert forecasts["forecast_year"].min() == 2026
+
+
+from raices_profundas.stats import (monthly_anomalies, season_series,  # noqa: E402
+                                    seasonal_mann_kendall, trend_test)
+
+
+def make_monthly(start=1990, end=2019, slope=0.05, noise=0.0, seed=0):
+    rng = np.random.default_rng(seed)
+    rows = []
+    for year in range(start, end + 1):
+        for month in range(1, 13):
+            seasonal = 5 * np.sin(2 * np.pi * month / 12)
+            rows.append({"year": year, "month": month,
+                         "value": 20 + seasonal + slope * (year - start) + noise * rng.normal()})
+    return pd.DataFrame(rows)
+
+
+def test_trend_test_matches_known_linear_slope():
+    x = np.arange(2000, 2020)
+    result = trend_test(x, 0.3 * (x - 2000) + 1.0)
+    assert result["n"] == 20
+    assert result["sen_slope"] == pytest.approx(0.3)
+    assert result["ols_slope"] == pytest.approx(0.3)
+    assert result["mk_p"] < 0.001 and result["ols_p"] < 0.001
+    assert result["sen_low"] <= result["sen_slope"] <= result["sen_high"]
+
+
+def test_trend_test_no_trend_and_short_series():
+    rng = np.random.default_rng(1)
+    x = np.arange(2000, 2030)
+    result = trend_test(x, rng.normal(size=30))
+    assert result["mk_p"] > 0.05
+    assert result["ols_low"] < 0 < result["ols_high"]
+    assert np.isnan(trend_test([1, 2], [1, 2])["sen_slope"])
+
+
+def test_seasonal_mann_kendall_ignores_seasonal_cycle():
+    trending = seasonal_mann_kendall(make_monthly(slope=0.05, noise=0.2))
+    assert trending["smk_p"] < 0.001
+    assert trending["seasonal_sen_slope"] == pytest.approx(0.05, abs=0.01)
+    flat = seasonal_mann_kendall(make_monthly(slope=0.0, noise=0.2))
+    assert flat["smk_p"] > 0.01
+
+
+def test_season_series_wraparound_keeps_complete_years():
+    monthly = make_monthly(start=2000, end=2003, slope=0.0)
+    season = season_series(monthly, [12, 1, 2])
+    # dic-2000 + ene/feb-2001 → 2001, ..., dic-2002 + ene/feb-2003 → 2003; 2000 y 2004 incompletos
+    assert season["year"].tolist() == [2001, 2002, 2003]
+    may_aug = season_series(monthly, [5, 6, 7, 8])
+    assert may_aug["year"].tolist() == [2000, 2001, 2002, 2003]
+
+
+def test_monthly_anomalies_remove_climatology():
+    anomalies = monthly_anomalies(make_monthly(slope=0.0))
+    assert anomalies["anomaly"].abs().max() < 1e-9
+    assert anomalies["decimal_year"].iloc[0] == pytest.approx(1990 + 0.5 / 12)
