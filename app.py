@@ -52,6 +52,17 @@ def L(es: str, en: str) -> str:
     return en if LANG == "en" else es
 
 
+def lang_key(name: str) -> str:
+    """Per-language widget key so translated option labels re-render; state lives in `name`."""
+    key = f"{name}_{LANG}"
+    st.session_state[key] = st.session_state[name]
+    return key
+
+
+def sync_from(name: str):
+    return lambda: st.session_state.update({name: st.session_state[f"{name}_{LANG}"]})
+
+
 # ---------------------------------------------------------------- datos
 root = Path(__file__).resolve().parent
 base = next((d for d in [root / "outputs", root / "data"]
@@ -217,19 +228,21 @@ with tab_detective:
     q1, q2, q3 = st.columns(3)
     with q1:
         st.markdown(L("**1 · ¿Qué quieres investigar?**", "**1 · What do you want to investigate?**"))
-        theme = st.radio(L("Tema", "Topic"), list(THEMES), key="theme",
+        theme = st.radio(L("Tema", "Topic"), list(THEMES), key=lang_key("theme"), on_change=sync_from("theme"),
                          format_func=lambda k: THEMES[k][LANG], horizontal=True)
         options = [v for v, meta in VARIABLES.items() if theme in meta["themes"]]
         if st.session_state["var"] not in options:
             st.session_state["var"] = options[0]
-        var = st.selectbox(L("Variable", "Variable"), options, key="var", format_func=var_name)
+        var = st.selectbox(L("Variable", "Variable"), options, key=lang_key("var"), on_change=sync_from("var"),
+                           format_func=var_name)
         meta = VARIABLES[var]
         st.caption(f"{meta['definition'][LANG]}  \n**{L('Fuente', 'Source')}:** {meta['source']} · "
                    f"**{L('Unidades', 'Units')}:** {meta['units']}")
     with q2:
         st.markdown(L("**2 · ¿Dónde?**", "**2 · Where?**"))
         cell = st.selectbox(L("Celda (~1°) — o haz clic en el mapa", "Cell (~1°) — or click on the map"),
-                            list(grid.cell_id), key="cell", format_func=cell_label)
+                            list(grid.cell_id), key=lang_key("cell"), on_change=sync_from("cell"),
+                            format_func=cell_label)
         elevation = float(cells.loc[cell, "elevation_m"])
         hints = [var_name(v) for v in LANDSCAPE_HINTS[landscape_key(elevation)]]
         st.caption(L(f"Paisaje: **{landscape(elevation, 'es')}** (~{elevation:.0f} m, elevación del modelo).  \n"
@@ -247,8 +260,8 @@ with tab_detective:
             st.caption(L("SMAP está disponible desde 2015 y aquí se resume como promedio de mayo–agosto.",
                          "SMAP is available since 2015 and is summarised here as the May–August mean."))
         else:
-            season = st.selectbox(L("Temporada", "Season"), list(SEASONS), key="season",
-                                  format_func=lambda k: SEASONS[k][LANG])
+            season = st.selectbox(L("Temporada", "Season"), list(SEASONS), key=lang_key("season"),
+                                  on_change=sync_from("season"), format_func=lambda k: SEASONS[k][LANG])
             lo, hi = int(power.year.min()), int(power.year.max())
             period = st.slider(L("Periodo", "Period"), lo, hi, key="period_power")
             if period[0] < 2001:
